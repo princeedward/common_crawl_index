@@ -189,7 +189,7 @@ Here is an example using the boto library in python to retreive and uncompress t
 def arc_file(s3, bucket, info):
 
   bucket = s3.lookup(bucket)
-  keyname = "/common-crawl/parse-output/segment/{arcSourceSegmentId}/{arcFileDate}_{arcFileParition}.
+  keyname = "/common-crawl/parse-output/segment/{arcSourceSegmentId}/{arcFileDate}_{arcFilePartition}.
 arc.gz".format(**info)
   key = bucket.lookup(keyname)
   
