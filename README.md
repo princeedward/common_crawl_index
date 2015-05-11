@@ -1,8 +1,10 @@
 Modified by: Yunkai Cui
 
-## Addition
+## Additions
 
 Added a function to remote copy each page into independet files to s3.
+
+## Original Readme
 
 ![Trivio Logo](/docs/project_header.png?raw=true)
 
