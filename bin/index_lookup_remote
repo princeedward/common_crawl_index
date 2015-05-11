@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 
 # Copyright [2012] [Triv.io, Scott Robertson]
-# 
+#
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-# 
+#
 #       http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-# 
+#
 
 
 import sys
@@ -35,7 +35,7 @@ class BotoMap(object):
     self.key = bucket.lookup(key_name)
     self.block_size = 2**16
     self.cached_block = -1
-  
+
   def __getitem__(self, i):
     if isinstance(i, slice):
       start = i.start
@@ -43,7 +43,7 @@ class BotoMap(object):
     else:
       start = i
       end = start + 1
-      
+
     return self.fetch(start,end)
 
   def fetch(self, start, end):
@@ -57,18 +57,18 @@ class BotoMap(object):
         return ''
 
 
-    
+
 if __name__ == "__main__":
   mmap = BotoMap(
     'aws-publicdatasets',
-    '/common-crawl/projects/url-index/url-index.1356128792'
-#    '<YOUR AWS KEY>',
-#    '<YOUR AWS SECRET>',
+    '/common-crawl/projects/url-index/url-index.1356128792',
+    # '<key id>',
+    # '<key secret>',
   )
-  
+
   reader = PBTreeDictReader(
     mmap,
-    value_format="<QQIQI", 
+    value_format="<QQIQI",
     item_keys=(
       'arcSourceSegmentId',
       'arcFileDate',
@@ -77,7 +77,7 @@ if __name__ == "__main__":
       'compressedSize'
     )
   )
-  
+
   try:
     for url, d in reader.itemsiter(sys.argv[1]):
       print url,d

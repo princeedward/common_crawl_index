@@ -3,15 +3,15 @@
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-# 
+#
 #       http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-# 
+#
 
 import argparse
 import boto
@@ -43,7 +43,7 @@ class BotoMap(object):
         else:
             start = i
             end = start + 1
-        
+
         return self.fetch(start,end)
 
     def fetch(self, start, end):
@@ -61,7 +61,8 @@ class BotoMap(object):
 # so that copy_arc_files can be used with multiprocessing pool.map()
 def copy_arc_files(index_results):
     try:
-        s3_anon = boto.connect_s3(anon=True)
+        # s3_anon = boto.connect_s3(anon=True)
+        s3_anon = boto.connect_s3(copy_arc_files.access_key, copy_arc_files.secret_key)
         s3_user = boto.connect_s3(copy_arc_files.access_key, copy_arc_files.secret_key)
 
         src_bucket_name = 'aws-publicdatasets'
@@ -70,7 +71,7 @@ def copy_arc_files(index_results):
         dest_bucket = s3_user.lookup(copy_arc_files.dest_bucket_name)
 
         src_keystem = '/common-crawl/parse-output/segment/{arcSourceSegmentId}/{arcFileDate}_{arcFilePartition}.arc.gz'
-        
+
         chunk = tempfile.NamedTemporaryFile('ab+')
         src_key_cache = {}
 
@@ -142,7 +143,8 @@ if __name__ == "__main__":
         if not args.key:
             argparser.error("Error: --key option is required for copy operation")
 
-    s3_anon = boto.connect_s3(anon=True)
+    # s3_anon = boto.connect_s3(anon=True)
+    s3_anon = boto.connect_s3(args.aws_access_key, args.aws_secret_key)
 
     src_bucket_name = 'aws-publicdatasets'
     src_bucket = s3_anon.lookup(src_bucket_name)
@@ -153,7 +155,7 @@ if __name__ == "__main__":
 
     reader = PBTreeDictReader(
         mmap,
-        value_format="<QQIQI", 
+        value_format="<QQIQI",
         item_keys=(
             'arcSourceSegmentId',
             'arcFileDate',
@@ -192,7 +194,7 @@ if __name__ == "__main__":
 
         print "Starting copy..."
         copy_start_time = time.time()
-            
+
         progress_queue = Queue()
         pool = Pool(args.parallel, copy_arc_files_init, [args.aws_access_key, args.aws_secret_key, args.bucket, args.key, progress_queue])
         index_results = partition(index_results, args.parallel)
@@ -202,7 +204,7 @@ if __name__ == "__main__":
 
         bytes_downloaded = bytes_uploaded = 0
         while(True):
-            if (result.ready()): 
+            if (result.ready()):
                 sys.stdout.write("\rDownload: 100%\tUpload: 100%")
                 sys.stdout.flush()
                 break
@@ -223,7 +225,7 @@ if __name__ == "__main__":
 
             sys.stdout.write("\rDownload: %d%%\tUpload: %d%%" % (100 * bytes_downloaded / dest_compressed_size, 100 * bytes_uploaded / dest_compressed_size))
             sys.stdout.flush()
-            time.sleep(1) 
+            time.sleep(1)
 
         pool.join()
 
